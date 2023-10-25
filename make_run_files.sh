@@ -1,11 +1,18 @@
 #!/bin/bash 
 
 set +x 
+
+# Get bin for minutes of rest to sample from the config.json
+json_file="config.json"
+max_minutes=$(grep -o '"max_minutes": *[0-9]*' "$json_file" | awk -F': ' '{print $2}')min
+
 # determine data directory, run folders, and run templates
-work_dir="/tmp"
+run_folder=`pwd`
+
+work_dir="${run_folder}/tier1_wd/${max_minutes}" #will change this  to /tmp once testing is complete
 data_dir="/home/faird/shared/projects/MSC_to_DCAN/split_halves/half1"
 
-run_folder=`pwd`
+out_dir="${run_folder}/CORR_OUT/${max_minutes}"
 half2_ILI="${run_folder}/half2_ILI"
 reliability_folder="${run_folder}/run_files.reliability_full"
 reliability_template="template.reliability_full_run"
@@ -13,13 +20,6 @@ logs_folder="${run_folder}/output_logs"
 
 email=`echo $USER@umn.edu`
 group=`groups|cut -d" " -f1`
-
-# Get bin for minutes of rest to sample from the config.json
-json_file="config.json"
-max_minutes=$(grep -o '"max_minutes": *[0-9]*' "$json_file" | awk -F': ' '{print $2}')min
-
-# Output dir for intermediate testing - will eventually replace with tmp
-out_dir="${run_folder}/tier1_half1_OUT/${max_minutes}"
 
 # if processing run folders exist delete them and recreate
 if [ -d "${reliability_folder}" ]; then
@@ -29,9 +29,14 @@ else
 	mkdir "${reliability_folder}"
 fi
 
-# if processing run folders exist delete them and recreate
+# make output logs directory if missing
 if [ ! -d "${logs_folder}" ]; then
 	mkdir "${logs_folder}"
+fi
+
+# make output directory if missing
+if [ ! -d "${out_dir}" ]; then
+	mkdir "${out_dir}"
 fi
 
 # counter to create run numbers

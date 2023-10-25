@@ -2,3 +2,4 @@ run_files.reliability_full/
 output_logs/
 half2_ILI/
 tier1_half1_OUT/
+scratch.sh

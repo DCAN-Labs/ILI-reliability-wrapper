@@ -1,10 +1,10 @@
 #!/bin/bash -l
 
-#SBATCH -J MSCh1
+#SBATCH -J MSC
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=4
 #SBATCH --mem-per-cpu=8gb
-#SBATCH --time=24:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lmoore@umn.edu
 #SBATCH -o output_logs/reliability_%A_%a.out
