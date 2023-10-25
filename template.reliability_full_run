@@ -1,0 +1,64 @@
+#!/bin/bash
+subject=SUBJECTID
+work_dir=WORKDIR
+data_dir=DATADIR
+run_folder=RUNDIR
+out_dir=OUTDIR
+
+# running on seven target roi
+rois_dir=/home/faird/shared/projects/wlf-test/fr/output-half-HCP
+two_customized_roi_dir=/home/faird/shared/projects/wlf-test/fr/IFGVAN-roi-customized
+config_file=${run_folder}/config.json
+
+singularity=`which singularity`
+MRE="/home/faird/shared/code/external/utilities/MATLAB_Runtime_R2019a_update9/v96"
+
+outdir=${out_dir}/${subject}
+if [ ! -d "${outdir}" ]; then
+    mkdir -p "${outdir}"
+fi
+
+## RUN crossotope.sif on x min sample of half1 dtseries for 7 ROIS to generate L&R values
+for roi_dir in "$rois_dir"/L_{55b,V1,4,FEF,FFC}_ROI/ ${two_customized_roi_dir}/{new_IFG_roi,VAN_MTG}; do
+    echo "$roi_dir"
+    roi=$(basename "$roi_dir")
+
+    subdir="${data_dir}/${subject}"
+    dtseries=${subject}_half1.dtseries.nii
+    motion=${subject}_half1_power_2014_FD_only.mat
+
+    env -i ${singularity} run \
+    -B ${subdir}:/session \
+    -B ${roi_dir}:/input_rois \
+    -B ${MRE}:/matlab \
+    -B ${config_file}:/config.json \
+    -B ${outdir}:/output \
+    /home/faird/shared/projects/wlf-test/fr/crossotope_mapping/crossotope.sif analysis \
+    --roi_dir /input_rois --n_samples 100 --matlab "$(which matlab)" --MRE /matlab \
+    --json_config /config.json --label ${roi} \
+    /session/{${dtseries},${motion}}
+done
+
+## RUN ILI on x min sample of half1 dtseries for 7 ROIS
+#remove hashes from data for preprocessing, where subdir is the output dir from step 1 above that contains 7 csv files
+for csv_file in `ls ${subdir}/*.csv`; do
+    sed 's|# ||' <${csv_file} >${subdir}/blah.csv
+    mv ${subdir}/blah.csv ${csv_file}
+    sed -i '/^$/d' ${csv_file}
+    sed -i '/^,/d' ${csv_file}
+    awk -F',' 'NF==4 {print}' ${csv_file} >> ${subdir}/blah.csv
+    mv ${subdir}/blah.csv ${csv_file}
+done
+
+# Run the crossotope.sif ili
+singularity run \
+    -B "${subdir}:/input" \
+    -B "${outdir}:/output" \
+    /home/faird/shared/projects/wlf-test/fr/crossotope_mapping/crossotope.sif ili /input /output/output.csv
+
+## Run correlation
+half1_csv=${outdir}/output.csv
+half2_csv=
+
+correlation=$(python3 intrasubject_similarity.py ${half1_csv} ${half2_csv})
+echo "$correlation" >> ${subject}_correlation.csv
