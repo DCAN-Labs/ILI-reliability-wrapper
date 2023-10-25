@@ -4,6 +4,7 @@ work_dir=WORKDIR
 data_dir=DATADIR
 run_folder=RUNDIR
 out_dir=OUTDIR
+half2_ILI=HALF2ILI
 
 # running on seven target roi
 rois_dir=/home/faird/shared/projects/wlf-test/fr/output-half-HCP
@@ -58,7 +59,7 @@ singularity run \
 
 ## Run correlation
 half1_csv=${outdir}/output.csv
-half2_csv=
+half2_csv=${half2_ILI}/${subject}/output.csv
 
 correlation=$(python3 intrasubject_similarity.py ${half1_csv} ${half2_csv})
 echo "$correlation" >> ${subject}_correlation.csv
