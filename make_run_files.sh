@@ -9,7 +9,7 @@ max_minutes=$(grep -o '"max_minutes": *[0-9]*' "$json_file" | awk -F': ' '{print
 # determine data directory, run folders, and run templates
 run_folder=`pwd`
 
-work_dir="${run_folder}/tier1_wd/${max_minutes}" #will change this  to /tmp once testing is complete
+work_dir="/tmp"
 data_dir="/home/faird/shared/projects/MSC_to_DCAN/split_halves/half1"
 
 out_dir="${run_folder}/CORR_OUT/${max_minutes}"

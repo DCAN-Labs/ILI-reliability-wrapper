@@ -10,6 +10,7 @@ half2_ILI=HALF2ILI
 rois_dir=/home/faird/shared/projects/wlf-test/fr/output-half-HCP
 two_customized_roi_dir=/home/faird/shared/projects/wlf-test/fr/IFGVAN-roi-customized
 config_file=${run_folder}/config.json
+correlation_script=${run_folder}/intrasubject_similarity.py
 
 singularity=`which singularity`
 MRE="/home/faird/shared/code/external/utilities/MATLAB_Runtime_R2019a_update9/v96"
@@ -68,5 +69,5 @@ singularity run \
 half1_csv=${ILI_outdir}/output.csv
 half2_csv=${half2_ILI}/${subject}/output.csv
 
-correlation=$(python3 intrasubject_similarity.py ${half1_csv} ${half2_csv})
-echo "$correlation" >> ${out_dir}/${subject}_correlation.csv
+correlation=$(python3 ${correlation_script} ${half1_csv} ${half2_csv})
+echo "$correlation" >> ${out_dir}/${subject}_${min}_correlation.csv

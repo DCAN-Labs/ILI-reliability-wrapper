@@ -1,5 +1,6 @@
 run_files.reliability_full/
 output_logs/
 half2_ILI/
-tier1_half1_OUT/
+CORR_OUT/
+tier1_wd/
 scratch.sh
