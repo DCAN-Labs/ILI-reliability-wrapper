@@ -1,6 +1,4 @@
-run_files.reliability_full/
-output_logs/
+run_files.reliability_full/output_logs/
+run_files.reliability_full/MSC01_5min
 half2_ILI/
 CORR_OUT/
-tier1_wd/
-scratch.sh

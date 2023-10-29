@@ -1,11 +1,11 @@
 #!/bin/bash
-subject=SUBJECTID
-work_dir=WORKDIR
-data_dir=DATADIR
-run_folder=RUNDIR
-out_dir=OUTDIR
-half2_ILI=HALF2ILI
-min=MIN
+subject=MSC07
+work_dir=/tmp
+data_dir=/home/faird/shared/projects/MSC_to_DCAN/split_halves/half1
+run_folder=/home/faird/shared/projects/wlf-test/LuciDev/ILI-reliability-wrapper
+out_dir=/home/faird/shared/projects/wlf-test/LuciDev/ILI-reliability-wrapper/CORR_OUT/5min
+half2_ILI=/home/faird/shared/projects/wlf-test/LuciDev/ILI-reliability-wrapper/half2_ILI
+min=5min
 
 # running on seven target roi
 rois_dir=/home/faird/shared/projects/wlf-test/fr/output-half-HCP
