@@ -3,11 +3,11 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem-per-cpu=16gb
-#SBATCH --time=10:00:00
+#SBATCH --time=15:00:00
 #SBATCH -p amdsmall,amdlarge,amd512,small,ram256g,msismall
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lmoore@umn.edu
-#SBATCH -A smnelson
+#SBATCH -A rando149
 
 input_file="$1"
 

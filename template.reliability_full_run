@@ -43,6 +43,14 @@ for roi_dir in "$rois_dir"/L_{55b,V1,4,FEF,FFC}_ROI/ ${two_customized_roi_dir}/{
 done
 
 ## RUN ILI on x min sample of half1 dtseries for 7 ROIS
+
+# Check if the directory contains 7 CSV files
+csv_count=$(ls -1 "${LR_outdir}"/*.csv 2>/dev/null | wc -l)
+if [ "$csv_count" -ne 7 ]; then
+    echo "The directory does not contain 7 CSV files (containing L & R values for each ROI). Exiting."
+    exit 1
+fi
+
 #first remove hashes from csv files in output dir of prior step (should contain 7 total)
 for csv_file in `ls ${LR_outdir}/*.csv`; do
     sed 's|# ||' <${csv_file} >${LR_outdir}/blah.csv

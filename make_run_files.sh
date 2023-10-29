@@ -11,7 +11,7 @@ run_folder=`pwd`
 work_dir="/tmp"
 data_dir="/home/faird/shared/projects/MSC_to_DCAN/split_halves/half1"
 
-out_dir="${run_folder}/CORR_OUT/${min}"
+out_dir="/home/faird/shared/projects/wlf-test/reliability_results/${min}"
 half2_ILI="${run_folder}/half2_ILI"
 reliability_folder="${run_folder}/run_files.reliability_full"
 reliability_template="template.reliability_full_run"
@@ -19,14 +19,6 @@ logs_folder="${reliability_folder}/output_logs"
 
 email=`echo $USER@umn.edu`
 group=`groups|cut -d" " -f1`
-
-# if processing run folders exist delete them and recreate
-#if [ -d "${reliability_folder}" ]; then
-#	rm -rf "${reliability_folder}"
-#	mkdir "${reliability_folder}"
-#else
-#	mkdir "${reliability_folder}"
-#fi
 
 # make output logs directory if missing
 if [ ! -d "${logs_folder}" ]; then
