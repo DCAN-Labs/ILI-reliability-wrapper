@@ -5,15 +5,14 @@ data_dir=DATADIR
 run_folder=RUNDIR
 out_dir=OUTDIR
 half2_ILI=HALF2ILI
+min=MIN
 
 # running on seven target roi
 rois_dir=/home/faird/shared/projects/wlf-test/fr/output-half-HCP
 two_customized_roi_dir=/home/faird/shared/projects/wlf-test/fr/IFGVAN-roi-customized
 config_file=${run_folder}/config.json
 correlation_script=${run_folder}/intrasubject_similarity.py
-
 singularity=`which singularity`
-MRE="/home/faird/shared/code/external/utilities/MATLAB_Runtime_R2019a_update9/v96"
 
 LR_outdir=${work_dir}/${subject}/LR
 if [ ! -d "${LR_outdir}" ]; then
@@ -21,28 +20,40 @@ if [ ! -d "${LR_outdir}" ]; then
 fi
 
 ## RUN crossotope.sif on x min sample of half1 dtseries for 7 ROIS to generate L&R values
-for roi_dir in "$rois_dir"/L_{55b,V1,4,FEF,FFC}_ROI/ ${two_customized_roi_dir}/{new_IFG_roi,VAN_MTG}; do
-    echo "$roi_dir"
-    roi=$(basename "$roi_dir")
+# Define the number of parallel jobs you want to run
+num_jobs=7
+
+# Create a function to run crossotope_LR.sh
+run_crossotope_LR() {
+    local run_folder="$1"
+    local data_dir="$2"
+    local subject="$3"
+    local config_file="$4"
+    local LR_outdir="$5"
+    local roi_dir="$6"
 
     subdir="${data_dir}/${subject}"
-    dtseries=${subject}_half1.dtseries.nii
-    motion=${subject}_half1_power_2014_FD_only.mat
+    dtseries="${subject}_half1.dtseries.nii"
+    motion="${subject}_half1_power_2014_FD_only.mat"
 
-    env -i ${singularity} run \
-    -B ${subdir}:/session \
-    -B ${roi_dir}:/input_rois \
-    -B ${MRE}:/matlab \
-    -B ${config_file}:/config.json \
-    -B ${LR_outdir}:/output \
-    /home/faird/shared/projects/wlf-test/fr/crossotope_mapping/crossotope.sif analysis \
-    --roi_dir /input_rois --n_samples 100 --matlab "$(which matlab)" --MRE /matlab \
-    --json_config /config.json --label ${roi} \
-    /session/{${dtseries},${motion}}
-done
+    ${run_folder}/crossotope_LR.sh ${subdir} ${roi_dir} ${config_file} ${LR_outdir} ${dtseries} ${motion}
+}
+
+# Export the function so it can be used with parallel
+export -f run_crossotope_LR
+
+# Use parallel to run the function in parallel
+parallel -j $num_jobs run_crossotope_LR ::: "$run_folder" ::: "$data_dir" ::: "$subject" ::: "$config_file" ::: "$LR_outdir" ::: "$rois_dir"/L_{55b,V1,4,FEF,FFC}_ROI/ ${two_customized_roi_dir}/{new_IFG_roi,VAN_MTG}
 
 ## RUN ILI on x min sample of half1 dtseries for 7 ROIS
-#first remove hashes from csv files in output dir of prior step (should contain 7 total)
+# Check if the directory contains 7 CSV files
+csv_count=$(ls -1 "${LR_outdir}"/*.csv 2>/dev/null | wc -l)
+if [ "$csv_count" -ne 7 ]; then
+    echo "The directory does not contain 7 CSV files (containing L & R values for each ROI). Exiting."
+    exit 1
+fi
+
+# First remove hashes from csv files in output dir of prior step (should contain 7 total)
 for csv_file in `ls ${LR_outdir}/*.csv`; do
     sed 's|# ||' <${csv_file} >${LR_outdir}/blah.csv
     mv ${LR_outdir}/blah.csv ${csv_file}
