@@ -13,6 +13,7 @@ two_customized_roi_dir=/home/faird/shared/projects/wlf-test/fr/IFGVAN-roi-custom
 config_file=${run_folder}/config.json
 correlation_script=${run_folder}/intrasubject_similarity.py
 singularity=`which singularity`
+MRE="/home/faird/shared/code/external/utilities/MATLAB_Runtime_R2019a_update9/v96"
 
 LR_outdir=${work_dir}/${subject}/LR
 if [ ! -d "${LR_outdir}" ]; then
@@ -23,27 +24,51 @@ fi
 # Define the number of parallel jobs you want to run
 num_jobs=7
 
+subdir="${data_dir}/${subject}"
+
 # Create a function to run crossotope_LR.sh
 run_crossotope_LR() {
-    local run_folder="$1"
-    local data_dir="$2"
-    local subject="$3"
-    local config_file="$4"
-    local LR_outdir="$5"
-    local roi_dir="$6"
+    export PATH="/home/faird/shared/code/external/utilities/workbench/1.4.2/workbench/bin_rh_linux64/:${PATH}"
+    which wb_command
 
-    subdir="${data_dir}/${subject}"
+    local singularity="$1"
+    local subdir="$2"
+    local MRE="$3"
+    local subject="$4"
+    local config_file="$5"
+    local LR_outdir="$6"
+    local roi_dir="$7"
+
+    roi=$(basename "$roi_dir")
+    echo "$roi"
     dtseries="${subject}_half1.dtseries.nii"
     motion="${subject}_half1_power_2014_FD_only.mat"
 
-    ${run_folder}/crossotope_LR.sh ${subdir} ${roi_dir} ${config_file} ${LR_outdir} ${dtseries} ${motion}
+    cd /tmp/${roi}
+
+    env -i ${singularity} run \
+    -B ${subdir}:/session \
+    -B ${roi_dir}:/input_rois \
+    -B ${MRE}:/matlab \
+    -B ${config_file}:/config.json \
+    -B ${LR_outdir}:/output \
+    /home/faird/shared/projects/wlf-test/fr/crossotope_mapping/crossotope.sif analysis \
+    --roi_dir /input_rois --n_samples 100 --matlab "$(which matlab)" --MRE /matlab \
+    --json_config /config.json --label ${roi} \
+    /session/{${dtseries},${motion}}
 }
 
 # Export the function so it can be used with parallel
 export -f run_crossotope_LR
 
+# Generate separate folders in tmp space to run process in parallel for 7 ROIs
+for roi_dir in "$rois_dir"/L_{55b,V1,4,FEF,FFC}_ROI/ ${two_customized_roi_dir}/{new_IFG_roi,VAN_MTG}; do
+    roi=$(basename "$roi_dir")
+    mkdir -p ${work_dir}/${roi}/tmp
+done
+
 # Use parallel to run the function in parallel
-parallel -j $num_jobs run_crossotope_LR ::: "$run_folder" ::: "$data_dir" ::: "$subject" ::: "$config_file" ::: "$LR_outdir" ::: "$rois_dir"/L_{55b,V1,4,FEF,FFC}_ROI/ ${two_customized_roi_dir}/{new_IFG_roi,VAN_MTG}
+parallel -j $num_jobs run_crossotope_LR ::: "$singularity" ::: "$subdir" ::: "$MRE" ::: "$subject" ::: "$config_file" ::: "$LR_outdir" ::: "$rois_dir"/L_{55b,V1,4,FEF,FFC}_ROI/ ${two_customized_roi_dir}/{new_IFG_roi,VAN_MTG}
 
 ## RUN ILI on x min sample of half1 dtseries for 7 ROIS
 # Check if the directory contains 7 CSV files

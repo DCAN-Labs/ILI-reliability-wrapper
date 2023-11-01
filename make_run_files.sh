@@ -9,7 +9,7 @@ min=$(grep -o '"max_minutes": *[0-9]*' "$json_file" | awk -F': ' '{print $2}')mi
 # determine data directory, run folders, and run templates
 run_folder=`pwd`
 
-work_dir="${run_folder}/tier1_wd"
+work_dir="/tmp"
 data_dir="/home/faird/shared/projects/MSC_to_DCAN/split_halves/half1"
 
 out_dir="${run_folder}/CORR_OUT/${min}"
