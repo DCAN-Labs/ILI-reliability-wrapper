@@ -7,6 +7,9 @@ out_dir=OUTDIR
 half2_ILI=HALF2ILI
 min=MIN
 
+random_label=$(uuidgen)
+work_dir=${work_dir}/${random_label}
+
 # running on seven target roi
 rois_dir=/home/faird/shared/projects/wlf-test/fr/output-half-HCP
 two_customized_roi_dir=/home/faird/shared/projects/wlf-test/fr/IFGVAN-roi-customized
