@@ -14,7 +14,7 @@ for input_file in "${input_files[@]}"; do
     errlog="output_logs/reliability_${input_file}_%A_%a.err"
 
     # Submit an array of jobs to run each input file 1000 times
-    reliability=$(sbatch --parsable --array=1-1000 -J "${input_file}" --output="${outlog}" --error="${errlog}" resources_reliability_full_run.sh "$input_file")
+    reliability=$(sbatch --parsable --array=1-100 -J "${input_file}" --output="${outlog}" --error="${errlog}" resources_reliability_full_run.sh "$input_file")
 
     echo "Submitted a job array for $input_file. Job ID: $reliability"
 done

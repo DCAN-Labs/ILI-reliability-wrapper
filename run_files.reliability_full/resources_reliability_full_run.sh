@@ -7,7 +7,7 @@
 #SBATCH -p amdsmall,amdlarge,amd512,small,ram256g,msismall
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lmoore@umn.edu
-#SBATCH -A rando149
+#SBATCH -A elisonj
 
 input_file="$1"
 
