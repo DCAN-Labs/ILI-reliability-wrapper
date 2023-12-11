@@ -18,6 +18,9 @@ if [ ! -d "${sub_work_dir}" ]; then
 	mkdir -p "${sub_work_dir}"
 fi
 
+echo "Subject-specific working directory created:"
+ls "$sub_work_dir"
+
 # running on seven target roi
 rois_dir=/home/faird/shared/projects/wlf-test/fr/output-half-HCP
 two_customized_roi_dir=/home/faird/shared/projects/wlf-test/fr/IFGVAN-roi-customized
@@ -31,6 +34,9 @@ LR_outdir=${sub_work_dir}/LR
 if [ ! -d "${LR_outdir}" ]; then
     mkdir -p "${LR_outdir}"
 fi
+
+echo "LR_outdir created:"
+ls "$LR_outdir"
 
 ## RUN crossotope.sif on x min sample of half1 dtseries for 7 ROIS to generate L&R values
 for roi_dir in "$rois_dir"/L_{55b,V1,4,FEF,FFC}_ROI/ ${two_customized_roi_dir}/{new_IFG_roi,VAN_MTG}; do
@@ -79,6 +85,9 @@ ILI_outdir=${sub_work_dir}/ILI
 if [ ! -d "${ILI_outdir}" ]; then
     mkdir -p "${ILI_outdir}"
 fi
+
+echo "ILI_outdir created:"
+ls "$ILI_outdir"
 
 singularity run \
     -B "${LR_outdir}:/input" \
